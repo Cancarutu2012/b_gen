@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Belépő vonalkód generátor</title>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<style>
+body { font-family: Arial,sans-serif; text-align:center; max-width:480px; margin:30px auto; }
+#barcode { margin-top:20px; }
+</style>
+</head>
+<body>
+
+<h2>Vonalkód generátor</h2>
+
+<div id="form">
+<label>Név:</label><br>
+<input id="nameInput" type="text" placeholder="Add meg a neved"><br><br>
+<button id="saveBtn">Generálás</button>
+</div>
+
+<svg id="barcode"></svg>
+
+<script>
+// ------------------- Numerikus mapping -------------------
+function nameToCode(name){
+    const map = {};
+    let i=1;
+    for(let c="A".charCodeAt(0);c<="Z".charCodeAt(0);c++) map[String.fromCharCode(c)] = i++;
+    for(let c="a".charCodeAt(0);c<="z".charCodeAt(0);c++) map[String.fromCharCode(c)] = i++;
+    map[" "] = 0; map["-"]=53;
+    let code="";
+    for(const ch of name){
+        code += (map[ch]!==undefined ? String(map[ch]).padStart(2,"0") : "99");
+    }
+    if(code.length>10) code=code.substring(0,10); // max 10 számjegy
+    return code;
+}
+
+// ------------------- Device és cookie -------------------
+function getDeviceId(){
+    let did = localStorage.getItem("deviceId") || getCookie("deviceId");
+    if(!did){
+        did = crypto.randomUUID();
+        try{ document.cookie="deviceId="+did+"; path=/; max-age=31536000"; }catch(e){}
+        localStorage.setItem("deviceId",did);
+    }
+    return did;
+}
+
+function getCookie(name){
+    const v=document.cookie.match('(^|;) ?'+name+'=([^;]*)(;|$)');
+    return v? decodeURIComponent(v[2]):null;
+}
+
+const deviceId = getDeviceId();
+
+// ------------------- Mentés -------------------
+const saveBtn = document.getElementById("saveBtn");
+const nameInput = document.getElementById("nameInput");
+
+// ------------------- Betöltés -------------------
+function loadBarcode() {
+    const savedCode = getCookie("barcodeCode") || localStorage.getItem("barcodeCode");
+    const savedName = getCookie("userName") || localStorage.getItem("userName");
+    
+    if (savedCode) {
+        JsBarcode("#barcode", savedCode, { format: "CODE128", width: 2, height: 60, displayValue: true });
+        document.getElementById("form").style.display = "none";
+    } else if (savedName) {
+        nameInput.value = savedName;
+    }
+}
+
+loadBarcode();
+
+// ------------------- Generálás -------------------
+saveBtn.addEventListener("click", () => {
+    // Ellenőrizzük a korábbi mentést
+    const existingName = localStorage.getItem("userName") || getCookie("userName");
+    if (existingName && existingName.trim() !== "") {
+        return alert("Eszközön már megadtad a neved!");
+    }
+
+    const name = nameInput.value.trim();
+    if (!name) return alert("Add meg a neved!");
+
+    const code = nameToCode(name);
+    JsBarcode("#barcode", code, { format: "CODE128", width: 2, height: 60, displayValue: true });
+
+    // Mentés cookie-ba és localStorage-ba
+    localStorage.setItem("userName", name);
+    localStorage.setItem("barcodeCode", code);
+    try {
+        document.cookie = "userName=" + encodeURIComponent(name) + "; path=/; max-age=31536000";
+        document.cookie = "barcodeCode=" + encodeURIComponent(code) + "; path=/; max-age=31536000";
+    } catch (e) {}
+
+    document.getElementById("form").style.display = "none";
+});
+</script>
+
+</body>
+</html>
