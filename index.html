@@ -1,22 +1,79 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-<meta charset="UTF-8">
-<title>Belépő vonalkód generátor</title>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-<style>
-body { font-family: Arial,sans-serif; text-align:center; max-width:480px; margin:30px auto; }
-#barcode { margin-top:20px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Mobil reszponzivitás -->
+    <title>Belépő vonalkód generátor</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        /* Alapértelmezett stílusok */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            max-width: 480px;
+            margin: 30px auto;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #form {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;  /* Szélesség 100% legyen, hogy alkalmazkodjon a képernyőhöz */
+            padding: 10px;
+            font-size: 16px;
+            box-sizing: border-box; /* A padding ne növelje meg a szélességet */
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            margin-top: 10px;
+        }
+
+        #barcode {
+            margin-top: 20px;
+            max-width: 100%; /* Biztosítja, hogy a vonalkód nem lépi túl a képernyő szélességét */
+        }
+
+        /* Media query mobil eszközökhöz */
+        @media (max-width: 600px) {
+            h2 {
+                font-size: 20px;
+            }
+
+            button {
+                width: 100%; /* Gomb szélessége mobilon */
+                font-size: 18px;
+            }
+
+            input {
+                font-size: 18px; /* Nagyobb betűméret mobilon */
+            }
+        }
+
+    </style>
 </head>
 <body>
 
 <h2>Vonalkód generátor</h2>
 
 <div id="form">
-<label>Név:</label><br>
-<input id="nameInput" type="text" placeholder="Add meg a neved"><br><br>
-<button id="saveBtn">Generálás</button>
+    <label for="nameInput">Név:</label><br>
+    <input id="nameInput" type="text" placeholder="Add meg a neved"><br><br>
+    <button id="saveBtn">Generálás</button>
 </div>
 
 <svg id="barcode"></svg>
